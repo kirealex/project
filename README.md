@@ -1,2 +1,2 @@
 # project
-client-server-mongodb-replica-sharding-hazelcast
+client-server-mongodb-replica-hazelcast
