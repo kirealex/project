@@ -1,0 +1,88 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package gettingstarted;
+
+
+import com.hazelcast.core.*;
+import com.hazelcast.config.*;
+import java.util.Map;
+import java.util.Queue;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.ClassNotFoundException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.BulkWriteOperation;
+import com.mongodb.BulkWriteResult;
+import com.mongodb.Cursor;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.ParallelScanOptions;
+import com.mongodb.ServerAddress;
+
+import java.util.List;
+import java.util.Set;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+
+
+
+public class GettingStarted {
+
+    private static ServerSocket server;
+    private static int port = 9875;
+    
+    public static void main(String[] args) throws ClassNotFoundException, IOException, InterruptedException {
+        
+        server = new ServerSocket(port);
+        
+        String message="";
+        
+        Config cfg = new Config();
+        HazelcastInstance instance = Hazelcast.newHazelcastInstance(cfg);
+        Map<Integer, String> mapCustomers = instance.getMap("customers");
+        Map<Integer, String> mapData = instance.getMap("data");
+       //mapCustomers.put(56, "count;alex;12345");
+       // mapCustomers.put(2, "Ali");
+       // mapCustomers.put(3, "Avi");
+        //System.out.println("Customer with key 10: "+ mapCustomers.get(10));
+        for(int i=0; i<180; i++) //3 minute delay to catch up first server
+        {
+        //System.out.println("data from db ->"+mapData.get(1056)+" "+mapData.get(2056)+" "+mapData.get(3056));
+        Thread.sleep(1000);
+        }
+        Socket socket = server.accept();
+        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+        message = (String)ois.readObject();
+        
+        ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+        //oos.writeObject("second message");
+        oos.writeObject("data from db ->"+mapData.get(1056)+" "+mapData.get(2056)+" "+mapData.get(3056));
+        ois.close();
+        oos.close();
+        socket.close();
+        
+        //System.out.println("data from db ->"+mapData.get(1056)+" "+mapData.get(2056)+" "+mapData.get(3056));
+        //System.out.println("Customer with key 1: "+ mapCustomers.get(1));
+        //System.out.println("Map Size: "+ mapCustomers.size());
+        
+        //Queue<String> queueCustomers = instance.getQueue("customers");
+        //queueCustomers.offer("Tom");
+        //queueCustomers.offer("Mary");
+        //queueCustomers.offer("Jane");
+        //System.out.println("First customer: "+ queueCustomers.poll());
+        //System.out.println("Second customer: "+ queueCustomers.peek());
+        //System.out.println("queue size: "+ queueCustomers.size());
+        
+        
+    }
+}
